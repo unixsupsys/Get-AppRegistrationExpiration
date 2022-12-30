@@ -97,16 +97,14 @@ $timeStamp = Get-Date -format o
 $appWithCredentials = @()
 $appWithCredentials += $applications | Sort-Object -Property DisplayName | % {
     $application = $_
-    $sp = $servicePrincipals | ? ApplicationId -eq $application.ApplicationId
+    $sp = $servicePrincipals | ? AppId -eq $application.AppId
     Write-Verbose ('Fetching information for application {0}' -f $application.DisplayName)
-    $application | Get-AzADAppCredential -ErrorAction SilentlyContinue | Select-Object `
-    -Property @{Name='DisplayName'; Expression={$application.DisplayName}}, `
-    @{Name='ObjectId'; Expression={$application.ObjectId}}, `
-    @{Name='ApplicationId'; Expression={$application.ApplicationId}}, `
-    @{Name='KeyId'; Expression={$_.KeyId}}, `
-    @{Name='Type'; Expression={$_.Type}},`
-    @{Name='StartDate'; Expression={$_.StartDate -as [datetime]}},`
-    @{Name='EndDate'; Expression={$_.EndDate -as [datetime]}}
+    $application | Select-Object -property @{Name="DisplayName"; Expression={$application.displayName}},`
+        @{Name='ObjectId'; Expression={$application.Id}},`
+        @{Name='ApplicationId'; Expression={$application.AppId}},`
+        @{Name='KeyId'; Expression={$application.passwordCredentials.KeyId}},`
+        @{Name='StartDate'; Expression={$application.passwordCredentials.StartDateTime -as [datetime]}},`
+        @{Name='EndDate'; Expression={$application.passwordCredentials.EndDateTime -as [datetime]}}
   }
 
 Write-output 'Validating expiration data...'
